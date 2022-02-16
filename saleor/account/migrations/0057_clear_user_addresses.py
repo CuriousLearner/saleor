@@ -3,13 +3,15 @@
 from django.db import migrations
 from django.db.models import Count
 
+USER_ADDRESS_LIMIT = 100
+
 
 def clear_addresses(apps, schema_editor):
     User = apps.get_model("account", "User")
     Address = apps.get_model("account", "Address")
 
     users = User.objects.annotate(address_count=Count("addresses")).filter(
-        address_count__gt=100
+        address_count__gt=USER_ADDRESS_LIMIT
     )
     address_pks_to_delete = set()
 
@@ -20,7 +22,7 @@ def clear_addresses(apps, schema_editor):
         ]
         address_pks_to_delete.update(
             user.addresses.exclude(id__in=user_default_addresses_ids)
-            .order_by("pk")[: user.address_count - 100]
+            .order_by("pk")[: user.address_count - USER_ADDRESS_LIMIT]
             .values_list("id", flat=True)
         )
 
