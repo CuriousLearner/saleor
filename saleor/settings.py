@@ -23,6 +23,16 @@ from sentry_sdk.integrations.logging import ignore_logger
 from . import patched_print_object
 from .core.languages import LANGUAGES as CORE_LANGUAGES
 
+try:
+    from decouple import RepositoryEnv
+    file_path = os.path.normpath(os.path.join(os.path.dirname(__file__), ".."))
+    print("{}/.env".format(file_path))
+    for k,v in RepositoryEnv("{}/.env".format(file_path)).data.items():
+        # print(k, v)
+        os.environ[k] = v
+except Exception as e:
+    print(e)
+    pass
 
 def get_list(text):
     return [item.strip() for item in text.split(",")]
